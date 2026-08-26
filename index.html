@@ -188,7 +188,7 @@
     <span class="nav-role" data-role="direct">Director</span>
   </div>
   <div class="nav-right">
-    <a class="nav-fade" href="#" id="contactLink">Contact</a>
+    <a class="nav-fade contact-trigger" href="#" id="contactLink">Contact</a>
     <div class="index-btn" id="indexBtn"><span></span><span></span></div>
   </div>
 </nav>
@@ -206,7 +206,7 @@
   <div class="index-list">
     <div class="index-item" data-go="edit"><span class="index-num">01</span><span>Editor</span></div>
     <div class="index-item" data-go="direct"><span class="index-num">02</span><span>Director</span></div>
-    <div class="index-item"><span class="index-num">03</span><a href="#" id="indexContact">Contact</a></div>
+    <div class="index-item"><span class="index-num">03</span><a href="#" id="indexContact" class="contact-trigger">Contact</a></div>
   </div>
 </div>
 
@@ -418,8 +418,9 @@
   const contactModal = document.getElementById('contactModal');
   function openContact(){ contactModal.classList.add('active'); }
   function closeContact(){ contactModal.classList.remove('active'); document.getElementById('cmCopy').textContent='Copy'; }
-  document.getElementById('contactLink').addEventListener('click', e=>{e.preventDefault(); openContact();});
-  document.getElementById('indexContact').addEventListener('click', e=>{e.preventDefault(); indexOverlay.classList.remove('active'); openContact();});
+  document.querySelectorAll('.contact-trigger').forEach(el=>{
+    el.addEventListener('click', e=>{ e.preventDefault(); indexOverlay.classList.remove('active'); openContact(); });
+  });
   document.getElementById('cmClose').addEventListener('click', closeContact);
   contactModal.addEventListener('click', e=>{ if(e.target===contactModal) closeContact(); });
   document.getElementById('cmCopy').addEventListener('click', async ()=>{
