@@ -14,7 +14,19 @@
   button{font-family:inherit;background:none;border:none;color:inherit;cursor:pointer}
 
   /* ── NAV ── */
-  .topnav{position:fixed;top:0;left:0;right:0;z-index:40;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:36px 48px;transition:opacity 0.4s ease}
+  .topnav{position:fixed;top:0;left:0;right:0;z-index:40;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:36px 48px;background:linear-gradient(to bottom,rgba(0,0,0,0.45) 0%,rgba(0,0,0,0.18) 55%,rgba(0,0,0,0) 100%);transition:opacity 0.4s ease}
+  .contact-modal{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity 0.3s ease}
+  .contact-modal.active{opacity:1;pointer-events:all}
+  .contact-card{width:min(420px,calc(100vw - 48px));border:1px solid rgba(242,241,236,0.14);padding:34px 32px 30px;display:flex;flex-direction:column;gap:22px}
+  .cm-label{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(242,241,236,0.45)}
+  .cm-email{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid rgba(242,241,236,0.14);padding-bottom:12px;font-size:15px;letter-spacing:0.02em}
+  .cm-copy{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(198,216,46,0.85);cursor:pointer;background:none;border:0;font-family:inherit;padding:0}
+  .cm-copy:hover{color:rgba(198,216,46,1)}
+  .cm-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;letter-spacing:0.02em}
+  .cm-row a{color:rgba(242,241,236,0.75)}
+  .cm-row a:hover{color:#f2f1ec}
+  .cm-close{align-self:flex-start;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(242,241,236,0.45);cursor:pointer;background:none;border:0;font-family:inherit;padding:0}
+  .cm-close:hover{color:#f2f1ec}
   .topnav.idle .nav-fade{opacity:0;pointer-events:none}
   .nav-fade{display:contents}
   .logo{font-size:15.1px;font-weight:400;letter-spacing:0.02em;text-transform:uppercase;transition:opacity 0.4s ease}
@@ -176,7 +188,7 @@
     <span class="nav-role" data-role="direct">Director</span>
   </div>
   <div class="nav-right">
-    <a class="nav-fade" href="mailto:bauzullig@gmail.com">Contact</a>
+    <a class="nav-fade" href="#" id="contactLink">Contact</a>
     <div class="index-btn" id="indexBtn"><span></span><span></span></div>
   </div>
 </nav>
@@ -194,7 +206,16 @@
   <div class="index-list">
     <div class="index-item" data-go="edit"><span class="index-num">01</span><span>Editor</span></div>
     <div class="index-item" data-go="direct"><span class="index-num">02</span><span>Director</span></div>
-    <div class="index-item"><span class="index-num">03</span><a href="mailto:bauzullig@gmail.com">Contact</a></div>
+    <div class="index-item"><span class="index-num">03</span><a href="#" id="indexContact">Contact</a></div>
+  </div>
+</div>
+
+<div class="contact-modal" id="contactModal">
+  <div class="contact-card">
+    <div class="cm-label">Get in touch</div>
+    <div class="cm-email"><span id="cmEmailText">bauzullig@gmail.com</span><button class="cm-copy" id="cmCopy">Copy</button></div>
+    <div class="cm-row"><span class="cm-label">Instagram</span><a href="https://www.instagram.com/gianaldinho/" target="_blank" rel="noopener">@gianaldinho</a></div>
+    <button class="cm-close" id="cmClose">Close</button>
   </div>
 </div>
 
@@ -355,6 +376,11 @@
 
   setRole('edit');
 
+  window.addEventListener('popstate', ()=>{
+    if(videoOverlay.classList.contains('active')){ suppressHistory = true; closeVideo(); suppressHistory = false; }
+    else if(contactModal.classList.contains('active')) closeContact();
+  });
+
   // preload every tile + thumb image so tab switches are instant
   if(typeof window.requestIdleCallback === 'function') window.requestIdleCallback(preloadAll); else setTimeout(preloadAll, 400);
   function preloadAll(){
@@ -388,7 +414,23 @@
     });
   });
 
-  // ── contact overlay (unused now that Contact is a direct mailto link) ──
+  // ── contact modal ──
+  const contactModal = document.getElementById('contactModal');
+  function openContact(){ contactModal.classList.add('active'); }
+  function closeContact(){ contactModal.classList.remove('active'); document.getElementById('cmCopy').textContent='Copy'; }
+  document.getElementById('contactLink').addEventListener('click', e=>{e.preventDefault(); openContact();});
+  document.getElementById('indexContact').addEventListener('click', e=>{e.preventDefault(); indexOverlay.classList.remove('active'); openContact();});
+  document.getElementById('cmClose').addEventListener('click', closeContact);
+  contactModal.addEventListener('click', e=>{ if(e.target===contactModal) closeContact(); });
+  document.getElementById('cmCopy').addEventListener('click', async ()=>{
+    const btn = document.getElementById('cmCopy');
+    try{ await navigator.clipboard.writeText('bauzullig@gmail.com'); btn.textContent='Copied'; }
+    catch(err){
+      const r = document.createRange(); r.selectNodeContents(document.getElementById('cmEmailText'));
+      const s = window.getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent='Select + copy';
+    }
+    setTimeout(()=>{ btn.textContent='Copy'; }, 2200);
+  });
 
   document.addEventListener('keydown', e=>{
     if(e.key==='Escape'){ indexOverlay.classList.remove('active'); }
@@ -486,8 +528,10 @@
   }
   window.addEventListener('resize', fitVimeoFrame);
 
+  let suppressHistory = false;
   function openVideo(project){
     activeProject = project;
+    if(!history.state || !history.state.videoOpen) history.pushState({videoOpen:true}, '');
     creditsToggleBtn.classList.toggle('show', !!project.credits);
     creditPanel.classList.remove('active');
     creditsToggleBtn.classList.remove('on');
@@ -549,6 +593,7 @@
     videoRail.querySelectorAll('.video-rail-item').forEach((item,i)=>item.classList.toggle('active', i===activeIndex));
   }
   function closeVideo(){
+    if(!suppressHistory && history.state && history.state.videoOpen) history.back();
     creditPanel.classList.remove('active');
     creditsToggleBtn.classList.remove('on');
     creditScreen.classList.remove('active');
