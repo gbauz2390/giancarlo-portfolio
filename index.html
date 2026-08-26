@@ -152,8 +152,7 @@
     .topnav{padding:18px 20px;grid-template-columns:1fr auto}
     .nav-center{grid-column:1/-1;grid-row:2;justify-content:flex-start;gap:18px;font-size:13px;margin-top:14px}
     .grid-wrap{padding:104px 20px 40px}
-    .grid{grid-template-columns:repeat(2,1fr);grid-template-rows:none;grid-auto-rows:auto;gap:0;width:100%;height:auto;border-radius:18px}
-    .tile{aspect-ratio:4/5}
+    .grid{grid-template-columns:1fr;grid-template-rows:none;grid-auto-rows:34vh;width:100%;height:auto;border-radius:18px}
     .tile-title{font-size:10px}
     .contact-title{font-size:32px}
     .contact-overlay{padding:0 24px}
@@ -339,30 +338,6 @@
   }
   grid.style.display = 'none';
   ['edit','direct'].forEach(buildGrid);
-
-  // ── mobile-only per-corner rounding ──
-  // <image-slot> rounds its own image (shadow DOM, default 12px on all 4
-  // corners) independent of the .tile it sits in — on the connected mobile
-  // 2x3 grid that leaves little rounded gaps at every tile, not just the
-  // grid's outer corners. Below 720px, mask each tile's image so only the
-  // true outside corner of the whole grid is rounded; above 720px the mask
-  // is removed and image-slot falls back to its normal default rounding
-  // (desktop is untouched).
-  const MOBILE_TILE_CORNERS = ['18px 0 0 0','0 18px 0 0','0 0 0 0','0 0 0 0','0 0 0 18px','0 0 18px 0'];
-  function applyTileCorners(g){
-    const slots = g.querySelectorAll('image-slot');
-    const mobile = window.matchMedia('(max-width:720px)').matches;
-    slots.forEach((slot,i)=>{
-      if(mobile && slots.length === MOBILE_TILE_CORNERS.length){
-        slot.setAttribute('mask', `inset(0px round ${MOBILE_TILE_CORNERS[i]})`);
-      } else {
-        slot.removeAttribute('mask');
-      }
-    });
-  }
-  function updateAllTileCorners(){ Object.values(roleGrids).forEach(applyTileCorners); }
-  updateAllTileCorners();
-  window.addEventListener('resize', updateAllTileCorners);
 
   function renderGrid(role){
     Object.entries(roleGrids).forEach(([r,g])=>{ g.style.display = r===role ? '' : 'none'; });
