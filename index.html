@@ -432,6 +432,7 @@
     }
     setTimeout(()=>{ btn.textContent='Copy'; }, 2200);
   });
+  if(params.get('contact')) openContact();
 
   document.addEventListener('keydown', e=>{
     if(e.key==='Escape'){ indexOverlay.classList.remove('active'); }
