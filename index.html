@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giancarlo Bauzulli</title>
+<script src="image-slot.js"></script>
+<script src="https://player.vimeo.com/api/player.js" defer></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#000000;color:#f2f1ec;font-family:'IBM Plex Mono',monospace;width:100%;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;background:none;border:none;color:inherit;cursor:pointer}
+
+  /* ── NAV ── */
+  .topnav{position:fixed;top:0;left:0;right:0;z-index:40;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:36px 48px;transition:opacity 0.4s ease}
+  .topnav.idle .nav-fade{opacity:0;pointer-events:none}
+  .nav-fade{display:contents}
+  .logo{font-size:15.1px;font-weight:400;letter-spacing:0.02em;text-transform:uppercase;transition:opacity 0.4s ease}
+  .nav-center{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:22px;font-size:15.1px;font-weight:400;letter-spacing:0.02em;text-transform:uppercase;transition:opacity 0.4s ease}
+  .nav-role{color:rgba(242,241,236,0.42);cursor:pointer;display:inline-flex;align-items:center;gap:11px;transition:color 0.25s ease}
+  .nav-role::before{content:'';width:5px;height:5px;border-radius:50%;background:rgba(198,216,46,0.78);opacity:0;transition:opacity 0.25s ease}
+  .nav-role.active::before{opacity:1}
+  .nav-role:hover{color:rgba(242,241,236,0.7)}
+  .nav-dot{display:none}
+  .nav-role.active{color:#f2f1ec}
+  .nav-right{display:flex;gap:22px;align-items:center;font-size:13.75px;font-weight:400;letter-spacing:0.02em;text-transform:uppercase;justify-self:end}
+  .nav-right a{color:#f2f1ec;transition:opacity 0.2s}
+  .nav-right a:hover{opacity:0.7}
+  .index-btn{width:20px;height:14px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;transition:opacity 0.4s ease}
+  .index-btn span{display:block;height:1px;background:#f2f2ee;width:100%}
+  .topnav.idle .index-btn{opacity:0.35}
+
+  /* ── GRID ── */
+  .grid-wrap{padding:16px 28px 28px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:0;border-radius:28px;overflow:hidden;width:calc(100vw - 56px);height:calc(100dvh - 44px)}
+  .tile{position:relative;overflow:hidden;cursor:pointer;border-radius:0}
+  .tile image-slot{transform:scale(1.01);filter:brightness(0.82);will-change:filter}
+  .tile:hover image-slot{filter:brightness(1)}
+  .tile-label{position:absolute;left:16px;bottom:14px;z-index:2}
+  .tile-default{pointer-events:none}
+  .tile-client{font-size:13.75px;font-weight:400;letter-spacing:0.02em;text-transform:uppercase}
+  .tile-dash{width:14px;height:1px;background:rgba(242,241,236,0.6);margin-top:6px}
+  .tile-hover{position:absolute;left:16px;bottom:14px;z-index:2;opacity:0;transition:opacity 0.25s ease;pointer-events:none}
+  .tile:hover .tile-hover{opacity:1}
+  .tile:hover .tile-default{opacity:0}
+  .tile-default{transition:opacity 0.25s ease}
+  .tile-eyebrow{font-size:12.4px;font-weight:400;letter-spacing:0.02em;text-transform:uppercase;color:rgba(242,241,236,0.5);margin-bottom:4px}
+  .tile-title{font-size:13.75px;font-weight:400;letter-spacing:0.02em;text-transform:uppercase;line-height:1.25}
+  .tile::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55),transparent 55%);pointer-events:none}
+
+  .card{opacity:0;transform:translateY(10px);transition:opacity .4s ease,transform .4s ease}
+  .card.show{opacity:1;transform:translateY(0);transition-delay:calc(var(--i)*40ms)}
+  .card.hide{display:none}
+
+  /* ── BOTTOM BAR ── */
+  .bottombar{display:flex;justify-content:space-between;align-items:center;padding:16px 28px;font-size:10px;letter-spacing:0.03em;text-transform:uppercase}
+  .bottombar-left{display:flex;gap:8px;align-items:center;color:rgba(242,242,238,0.45)}
+  .bottombar-left .dot{width:5px;height:5px;border-radius:50%;background:#f2f2ee}
+  .bottombar-left span{cursor:pointer}
+  .bottombar-left span.active{color:#f2f2ee}
+  .bottombar-right{color:rgba(242,242,238,0.45)}
+  .bottombar-right a{color:inherit}
+
+  /* ── INDEX OVERLAY ── */
+  .index-overlay{position:fixed;inset:0;background:rgba(8,8,8,0.97);z-index:100;opacity:0;pointer-events:none;transition:opacity 0.35s ease;padding:28px}
+  .index-overlay.active{opacity:1;pointer-events:all}
+  .index-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:80px}
+  .index-brand{font-size:11px;letter-spacing:0.03em;color:rgba(242,242,238,0.5);text-transform:uppercase}
+  .index-close{font-size:20px;cursor:pointer;color:rgba(242,242,238,0.6)}
+  .index-close:hover{color:#f2f2ee}
+  .index-list{display:flex;flex-direction:column;gap:26px;max-width:600px}
+  .index-item{display:flex;align-items:baseline;gap:20px;font-size:28px;letter-spacing:0;text-transform:uppercase;font-weight:400;cursor:pointer;color:rgba(242,242,238,0.8);transition:color 0.2s}
+  .index-item:hover{color:#f2f2ee}
+  .index-num{font-size:12px;color:rgba(242,242,238,0.35);letter-spacing:0.03em}
+  .index-foot{position:absolute;bottom:28px;left:28px;right:28px;display:flex;justify-content:space-between;font-size:10px;letter-spacing:0.03em;color:rgba(242,242,238,0.4);text-transform:uppercase}
+
+  /* ── CONTACT OVERLAY ── */
+  .contact-overlay{position:fixed;inset:0;z-index:100;opacity:0;pointer-events:none;transition:opacity 0.3s ease}
+  .contact-overlay.active{opacity:1;pointer-events:all}
+  .contact-panel{position:absolute;inset:0;border-radius:0;overflow:hidden;background:transparent;opacity:0;transition:opacity 0.5s ease;display:flex;align-items:center;justify-content:center}
+  .contact-overlay.active .contact-panel{opacity:1}
+  .contact-tint{position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,80,30,0.85),rgba(180,40,15,0.85));mix-blend-mode:color;z-index:1}
+  .contact-tint::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,transparent 30%,rgba(10,3,1,0.55) 100%);mix-blend-mode:multiply}
+  body.contact-active .tile image-slot{filter:contrast(1.15) brightness(0.95);transition:filter 0.4s ease}
+  .contact-content{position:relative;z-index:2;padding:0 60px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:44px}
+  .contact-close{position:absolute;top:22px;right:26px;z-index:3;font-size:22px;cursor:pointer;color:rgba(242,242,238,0.75)}
+  .contact-close:hover{color:#f2f2ee}
+  .contact-title{font-family:'IBM Plex Mono',monospace;font-size:68px;font-weight:400;letter-spacing:0.015em;text-transform:uppercase;line-height:1}
+  .contact-block{margin-bottom:22px}
+  .contact-label{font-size:10px;letter-spacing:0.03em;text-transform:uppercase;color:rgba(242,242,238,0.5);margin-bottom:6px}
+  .contact-value{font-size:15px;letter-spacing:0.01em}
+  .contact-value a{color:inherit;text-decoration:none;transition:opacity 0.2s}
+  .contact-value a:hover{opacity:0.6}
+  .contact-loc{position:absolute;bottom:28px;left:60px;z-index:2;font-size:10px;letter-spacing:0.03em;text-transform:uppercase;color:rgba(242,242,238,0.5);line-height:1.7;text-align:left}
+
+  /* ── VIDEO PLAYER OVERLAY ── */
+  .video-overlay{position:fixed;inset:0;background:#000000;z-index:100;opacity:0;pointer-events:none;transition:opacity 0.4s ease}
+  .video-overlay.active{opacity:1;pointer-events:all;cursor:none}
+  .video-overlay video{width:100%;height:100%;object-fit:contain;display:block;background:#000000;opacity:0;transition:opacity 0.35s ease}
+  .video-overlay video.ready{opacity:1}
+  .vimeo-wrap{position:absolute;inset:0;display:none;background:#000000;overflow:hidden}
+  .vimeo-wrap iframe{position:absolute;pointer-events:none;background:#000000;opacity:0;transition:opacity 0.35s ease}
+  .vimeo-wrap iframe.ready{opacity:1}
+  .video-scrim{position:absolute;inset:0;background:#000000;z-index:5;opacity:1;pointer-events:none;transition:opacity 0.3s ease}
+  .video-scrim.hide{opacity:0}
+  .video-rail{position:fixed;top:50%;right:24px;transform:translateY(-50%);z-index:130;display:flex;flex-direction:column;gap:16px;opacity:0;transition:opacity 0.3s ease}
+  .video-overlay.active .video-rail{opacity:1}
+  .video-rail-item{display:flex;align-items:center;gap:10px;cursor:pointer;justify-content:flex-end}
+  .video-rail-thumb{width:56px;height:38px;border-radius:3px;overflow:hidden;position:relative;filter:brightness(0.6) saturate(0.8);transition:filter 0.2s ease,outline 0.2s ease;outline:1px solid rgba(255,255,255,0);outline-offset:2px}
+  .video-rail-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .video-rail-item:hover .video-rail-thumb{filter:brightness(0.85) saturate(1)}
+  .video-rail-item.active .video-rail-thumb{filter:brightness(1) saturate(1);outline:1px solid rgba(255,255,255,0.8)}
+  .video-rail-num{font-size:10px;letter-spacing:0.1em;color:rgba(255,255,255,0.4);min-width:14px;text-align:right}
+  .video-rail-item.active .video-rail-num{color:rgba(255,255,255,0.9)}
+  .video-cursor{position:fixed;width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.15);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:110;transform:translate(-50%,-50%);opacity:0;transition:opacity 0.2s ease,transform 0.1s ease}
+  .video-cursor.visible{opacity:1}
+  .video-cursor svg{width:20px;height:20px;fill:#fff}
+  .video-overlay.showing-credits .video-controls,.video-overlay.showing-credits .video-title,.video-overlay.showing-credits .scrub-wrap{opacity:0;pointer-events:none}
+  .video-overlay.ending video,.video-overlay.ending .vimeo-wrap iframe{opacity:0!important;transition:opacity 0.35s ease}
+  .credit-screen{position:absolute;inset:0;background:#000000;opacity:0;pointer-events:none;transition:opacity 0.25s ease;z-index:120;display:flex;align-items:center;justify-content:center}
+  .credit-screen.active{opacity:1;pointer-events:all}
+  .credit-block{display:grid;grid-template-columns:auto auto;column-gap:28px;row-gap:8px;font-size:12px;letter-spacing:0.06em}
+  .credit-label{color:rgba(242,241,236,0.4);text-transform:uppercase}
+  .credit-value{color:#f2f1ec;text-transform:uppercase;line-height:1.5}
+  .credit-controls{position:absolute;top:22px;right:24px;left:auto;bottom:auto;display:flex;gap:18px;font-size:11px;letter-spacing:0.15em;text-transform:uppercase}
+  .credit-btn{color:rgba(242,241,236,0.6);cursor:pointer;font-size:inherit;letter-spacing:inherit;transition:color 0.2s ease}
+  .credit-btn:hover{color:#f2f1ec}
+  .credit-panel{position:fixed;top:0;right:0;height:100%;width:340px;background:rgba(0,0,0,0.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);z-index:135;transform:translateX(100%);opacity:0;transition:transform 0.4s ease,opacity 0.4s ease;display:grid;grid-template-columns:max-content auto;column-gap:14px;row-gap:8px;align-content:center;padding:0 32px;font-size:11px;letter-spacing:0.05em;border-left:1px solid rgba(242,241,236,0.08)}
+  .credit-panel.active{transform:translateX(0);opacity:1}
+  .credits-toggle{display:none}
+  .credits-toggle.show{display:inline-flex}
+  .credits-toggle.on{color:#fff}
+  .video-controls{position:fixed;top:22px;right:24px;z-index:140;display:flex;gap:18px;align-items:center;opacity:0;transition:opacity 0.3s ease;cursor:auto}
+  .video-overlay.active .video-controls{opacity:1}
+  .video-btn{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.7);font-family:inherit;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;transition:color 0.2s ease;padding:0;display:flex;align-items:center;gap:6px}
+  .video-btn:hover{color:#fff}
+  .video-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5}
+  .video-title{position:fixed;bottom:56px;left:24px;z-index:110;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.5);opacity:0;transition:opacity 0.3s ease}
+  .video-overlay.active .video-title{opacity:1}
+  .scrub-wrap{position:fixed;left:24px;right:24px;bottom:24px;z-index:110;display:flex;align-items:center;gap:14px;opacity:0;transition:opacity 0.3s ease;cursor:pointer}
+  .video-overlay.active .scrub-wrap{opacity:1}
+  .scrub-time{font-size:10px;letter-spacing:0.1em;color:rgba(255,255,255,0.55);font-variant-numeric:tabular-nums;min-width:34px}
+  .scrub-time.duration{text-align:right}
+  .scrub-track{position:relative;flex:1;height:16px;display:flex;align-items:center;cursor:pointer}
+  .scrub-track::before{content:'';position:absolute;left:0;right:0;height:2px;background:rgba(255,255,255,0.25)}
+  .scrub-fill{position:absolute;left:0;top:50%;height:2px;transform:translateY(-50%);background:#fff;width:0%;pointer-events:none}
+  .scrub-handle{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);left:0%;pointer-events:none;box-shadow:0 0 0 4px rgba(255,255,255,0.15)}
+
+  @media (max-width:720px){
+    .topnav{padding:18px 20px;grid-template-columns:1fr auto}
+    .nav-center{grid-column:1/-1;grid-row:2;justify-content:flex-start;gap:18px;font-size:13px;margin-top:14px}
+    .grid-wrap{padding:104px 14px 14px}
+    .grid{grid-template-columns:1fr;grid-template-rows:none;grid-auto-rows:34vh;width:100%;height:auto;border-radius:18px}
+    .tile-title{font-size:10px}
+    .contact-title{font-size:32px}
+    .contact-overlay{padding:0 24px}
+    .contact-loc{left:24px}
+    .about-grid{grid-template-columns:1fr}
+    .index-item{font-size:22px}
+    .credit-panel{width:100%}
+    .tile-hover{opacity:1;transform:none}
+    .tile-default{opacity:0}
+    .tile image-slot{filter:brightness(0.6)}
+    .video-controls{top:16px;right:16px;gap:14px}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav" id="topnav">
+  <a class="logo nav-fade" href="Main Homepage.html" id="logoHome">Giancarlo Bauzulli</a>
+  <div class="nav-center nav-fade">
+    <span class="nav-role active" data-role="edit">Editor</span>
+    <span class="nav-dot"></span>
+    <span class="nav-role" data-role="direct">Director</span>
+  </div>
+  <div class="nav-right">
+    <a class="nav-fade" href="mailto:bauzullig@gmail.com">Contact</a>
+    <div class="index-btn" id="indexBtn"><span></span><span></span></div>
+  </div>
+</nav>
+
+<div class="grid-wrap" id="homeView">
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- INDEX OVERLAY -->
+<div class="index-overlay" id="indexOverlay">
+  <div class="index-top">
+    <div class="index-brand">Giancarlo Bauzulli</div>
+    <div class="index-close" id="indexClose">×</div>
+  </div>
+  <div class="index-list">
+    <div class="index-item" data-go="edit"><span class="index-num">01</span><span>Editor</span></div>
+    <div class="index-item" data-go="direct"><span class="index-num">02</span><span>Director</span></div>
+    <div class="index-item"><span class="index-num">03</span><a href="mailto:bauzullig@gmail.com">Contact</a></div>
+  </div>
+</div>
+
+<!-- CONTACT OVERLAY -->
+<div class="contact-overlay" id="contactOverlay">
+  <div class="contact-panel">
+    <div class="contact-tint"></div>
+    <span class="contact-close" id="contactClose">×</span>
+    <div class="contact-content">
+      <div class="contact-title">Let's make<br>something.</div>
+      <div class="contact-block">
+        <div class="contact-label">Email</div>
+        <div class="contact-value"><a href="mailto:bauzullig@gmail.com">bauzullig@gmail.com</a></div>
+      </div>
+      <div class="contact-block">
+        <div class="contact-label">Instagram</div>
+        <div class="contact-value"><a href="https://instagram.com/giancarlobauzulli" target="_blank" rel="noopener">@giancarlobauzulli</a></div>
+      </div>
+    </div>
+    <div class="contact-loc">Director &amp; Editor.<br>Working globally.<br>From NYC.</div>
+  </div>
+</div>
+
+<!-- VIDEO OVERLAY -->
+<div class="video-overlay" id="videoOverlay">
+  <video id="videoEl" playsinline loop></video>
+  <div class="vimeo-wrap" id="vimeoWrap"></div>
+  <div class="credit-screen" id="creditScreen">
+    <div class="credit-block" id="creditBlock"></div>
+    <div class="credit-controls">
+      <span class="credit-btn" onclick="event.stopPropagation();replayFromCredits()">Replay</span>
+      <span class="credit-btn" onclick="event.stopPropagation();closeVideo()">Exit</span>
+    </div>
+  </div>
+  <div class="credit-panel" id="creditPanel"></div>
+  <div class="video-scrim" id="videoScrim"></div>
+  <div class="video-controls">
+    <button class="video-btn credits-toggle" id="creditsToggleBtn" onclick="toggleCreditsPanel()">Credits</button>
+    <button class="video-btn" id="muteBtn" onclick="toggleMute()">
+      <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path id="soundWaves" d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+      <span id="muteLabel">Mute</span>
+    </button>
+    <button class="video-btn" onclick="closeVideo()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Exit
+    </button>
+  </div>
+  <div class="video-title" id="videoTitle"></div>
+  <div class="video-rail" id="videoRail"></div>
+  <div class="scrub-wrap" id="scrubWrap">
+    <span class="scrub-time" id="scrubCurrent">0:00</span>
+    <div class="scrub-track" id="scrubTrack">
+      <div class="scrub-fill" id="scrubFill"></div>
+      <div class="scrub-handle" id="scrubHandle"></div>
+    </div>
+    <span class="scrub-time duration" id="scrubDuration">0:00</span>
+  </div>
+</div>
+<div class="video-cursor" id="videoCursor">
+  <svg id="cursorIcon" viewBox="0 0 24 24" fill="#fff"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+</div>
+
+<script>
+  const PROJECTS = {
+    direct: [
+      {label:'Behind The Score', client:'A24', img:'uploads/a24-cropped.png', credits:[['Client','A24'],['Director','Giancarlo Bauzulli'],['Cinematographer','Michael Townley'],['Editor','Giancarlo Bauzulli'],['Talent','Devonté Hynes']], videos:[
+        {title:'The Invite | Behind the Score with Composer Devonté Hynes', vimeoId:'1219116549', thumb:'uploads/a24-cropped.png'},
+      ]},
+      {label:'One Of One Music Video', client:'Leroy', img:'uploads/leroy_firelfy.jpg', credits:[['Starring','Leroy'],['Prod Co','Summit Film'],['Director','Giancarlo Bauzulli'],['Producers','Nico Guerra'],['DP','Kent Willard'],['Editor','Matthew Wade'],['Colorist','Kyle Messina']], videos:[
+        {title:'One Of One Music Video', vimeoId:'969944665', thumb:'uploads/leroy_firelfy.jpg'},
+      ]},
+      {label:'Block Talk', client:'FIFA NY NJ', img:'uploads/fifa nbynj 2.jpg', credits:[['Starring','Florencia Galarza'],['Director','Giancarlo Bauzulli'],['Agency','Fifa NY NJ']], videos:[
+        {title:'Block Talk', vimeoId:'1221287397', thumb:'uploads/fifa nbynj 2.jpg'},
+      ]},
+      {label:'Keep The Car Running Music Video', client:'Sam Island', img:'uploads/Sam island.jpg', credits:[['Starring','Sam Island, @breathewithbre, Zac Cooper'],['Prod Co','Summit Film'],['Director','Giancarlo Bauzulli'],['AD','Spencer Kelly'],['Producers','Nico Guerra, Spencer Kelly'],['DP','Kent Willard'],['Editor','Giancarlo Bauzulli'],['Colorist','Kyle Messina'],['VFX Artist','Rasanath Razzy Escalona, Invisible Work'],['Horse Wrangler','Savannah Rogers'],['Picture Car','Gray McClamrock'],['Special Thanks',"JR’s Rodeo, Frog Level Brewing, Sky Lanes AVL, The Double Crown, Treasure Club Asheville"],['EQ Rental','Summit Camera']], videos:[
+        {title:'Keep The Car Running Music Video', vimeoId:'901653284', thumb:'uploads/Sam island.jpg'},
+      ]},
+      {label:'Roots', client:'Kia', img:'uploads/roots.jpg', credits:[['Client','KIA'],['Agency','Copa 90'],['Creative Director','Robbie Lang'],['Director','Giancarlo Bauzulli'],['Producer','Sydney LaDrola']], videos:[
+        {title:'Roots', vimeoId:'1221230968', thumb:'uploads/roots.jpg'},
+        {title:'Roots (Vertical)', vimeoId:'1221230934', thumb:'uploads/Screenshot 2026-08-25 at 1.54.02 PM.png'},
+      ]},
+      {label:'Million In One Music Video', client:'Shame Gang', img:'uploads/shame-gang-cropped2.png', credits:[['Starring','Lute, Boy Named Leroy, Erick Lottary, DEVN'],['Management','Finian St. Omer'],['Director','Giancarlo Bauzulli'],['1st AD','Spencer Kelly'],['2nd AD','Nicolas Guerra'],['Producer','Gray McClamrock'],['DP','Kent Willard'],['Editor','Giancarlo Bauzulli'],['VFX','Andrew Vandenburg, Debra Khoo'],['Graphic Designer','Mark McGillivray'],['Colorist','Kyle Messina'],['1st AC','Ryan Shacks'],['2nd AC','Ricky Anthony'],['Gaffer','Adolfo'],['Key Grip','Noah Hensley'],['Wardrobe Stylists','Alexis Roston, Marco Guerra'],['Wardrobe Assistant','Brittany Gianni'],['Prod Co','@summit_film']], videos:[
+        {title:'Million In One Music Video', vimeoId:'1047261308', thumb:'uploads/shame-gang-cropped2.png'},
+      ]},
+    ],
+    edit: [
+      {label:'Questions Are Everything', client:'Polymarket', img:'uploads/Fireflypoly-97ccba95.jpg', videos:[
+        {title:'Questions Are Everything — Semifinals', vimeoId:'1219112830', thumb:'uploads/Fireflypoly-97ccba95.jpg', credits:[['Client','Polymarket'],['Director','Gabriel Moses'],['CD','Daf Orlovsky'],['Cinematographer','Karol Jurga'],['Set Designer','Julia Dias'],['Wardrobe Designer',"Gerry O'Kane"],['Makeup Artist','Jezz Hill'],['Hair Stylist','Joey George'],['Editor','Giancarlo Bauzulli'],['Colorist','John Lowe'],['Advertising Agency','Better Half']]},
+        {title:'Questions Are Everything — Hero', vimeoId:'1219114597', thumb:'uploads/Firefly-2-e9a19e31.jpg', credits:[['Client','Polymarket'],['Director','Gabriel Moses'],['CD','Daf Orlovsky'],['Cinematographer','Karol Jurga'],['Set Designer','Julia Dias'],['Wardrobe Designer',"Gerry O'Kane"],['Makeup Artist','Jezz Hill'],['Hair Stylist','Joey George'],['Editors','Giancarlo Bauzulli, Alexander Evan Morales, Laura Cairney Keize, Taj François'],['Colorist','John Lowe'],['Advertising Agency','Better Half']]},
+      ]},
+      {label:'Add Some Peloton To Your Day', client:'Peloton', img:'uploads/ChatGPT Image Aug 18, 2026 at 02_37_04 AM.png', credits:[['Client','Peloton'],['Agency','Artclass'],['Editor','Giancarlo Bauzulli']], videos:[
+        {title:'Peloton — Hero Flex', vimeoId:'883311862', thumb:'uploads/ChatGPT Image Aug 18, 2026 at 02_37_04 AM-cbfc9271.png'},
+        {title:'Peloton — Community', vimeoId:'883311737', thumb:'uploads/thumb-2.jpg'},
+        {title:'Peloton — Tread', vimeoId:'883311915', thumb:'uploads/thumb.jpg'},
+      ]},
+      {label:'Push The Boundaries: Jaxon Willard', client:'YSL', img:'uploads/ysl-blue.jpg', credits:[['Client','YSL Beauty'],['Agency','Matte Projects'],['Director','Sarah Prinz'],['CD','Thomas Lee'],['Offline Editors','Giancarlo Bauzulli, Lindsay Wilkins'],['Online Editor','Jeff Alper'],['Post Supervisor','Kathy Collins']], videos:[
+        {title:'Push The Boundaries: Jaxon Willard', vimeoId:'786709778', thumb:'https://picsum.photos/seed/ysl0/200/140'},
+      ]},
+      {label:'Behind The Score', client:'A24', img:'uploads/thumb-7.jpg', credits:[['Client','A24'],['Director','Giancarlo Bauzulli'],['Cinematographer','Michael Townley'],['Editor','Giancarlo Bauzulli'],['Talent','Devonté Hynes']], videos:[
+        {title:'The Invite | Behind the Score with Composer Devonté Hynes', vimeoId:'1219116549', thumb:'https://picsum.photos/seed/a240/200/140'},
+      ]},
+      {label:'A Decade of Dust: The Heavens', client:'Glidesurf', img:'uploads/glidesurf-hero.png', credits:[['Director','James Clower'],['Editor','Giancarlo Bauzulli'],['Cinematography','James Clower, Joey Dwyer, Timmy Dwyer, Phillip Mansfield, Rob Cusick, Christor Lukasiewicz, Zack Spiger, Kevin Strickland, Andrew Law, Sean Santiago'],['Tintypes','Vanessa Wagner']], videos:[
+        {title:'A Decade of Dust — The Heavens', vimeoId:'1047239218', thumb:'https://picsum.photos/seed/glide0/200/140'},
+      ]},
+      {label:'Beats Fit Pro', client:'Apple', img:'uploads/profile-cover.jpg', credits:[['Client','Apple / Beats by Dre'],['Director','Geoff Levy'],['Agency','Firstborn'],['Producers','Nicole Hayser, Emily Brown, Matthew Webb'],['Executive Design Director','Matt St. Gelais'],['Motion & 3D Team','Daniel Marin, Ron White']], videos:[
+        {title:'Beats Fit Pro', vimeoId:'663409844', thumb:'https://picsum.photos/seed/apple0/200/140'},
+      ]},
+    ]
+  };
+
+  const grid = document.getElementById('grid');
+  let currentRole = 'direct';
+
+  const gridWrap = grid.parentNode;
+  const roleGrids = {};
+  function buildGrid(role){
+    const items = PROJECTS[role];
+    const g = grid.cloneNode(false);
+    g.removeAttribute('id');
+    g.style.display = 'none';
+    g.innerHTML = items.map((p,i)=>`
+      <div class="tile card show" style="--i:${i}">
+        <image-slot id="tile-${role}-${i}" placeholder="Project still" src="${p.img || `https://picsum.photos/seed/${role}${i}/900/900`}"></image-slot>
+        <div class="tile-label tile-default">
+          <div class="tile-client">${p.client || p.label}</div>
+          <div class="tile-dash"></div>
+        </div>
+        <div class="tile-hover">
+          <div class="tile-eyebrow">${role === 'direct' ? 'Directing' : 'Editing'}</div>
+          <div class="tile-title">${p.label}</div>
+        </div>
+      </div>
+    `).join('');
+    g.querySelectorAll('.tile').forEach((tile,i)=>{
+      tile.addEventListener('click', ()=>openVideo(items[i]));
+    });
+    gridWrap.appendChild(g);
+    roleGrids[role] = g;
+    return g;
+  }
+  grid.style.display = 'none';
+  ['edit','direct'].forEach(buildGrid);
+
+  function renderGrid(role){
+    Object.entries(roleGrids).forEach(([r,g])=>{ g.style.display = r===role ? '' : 'none'; });
+  }
+
+  function setRole(role){
+    currentRole = role;
+    document.querySelectorAll('.nav-role').forEach(el=>el.classList.toggle('active', el.dataset.role===role));
+    document.querySelectorAll('.role-pick').forEach(el=>el.classList.toggle('active', el.dataset.role===role));
+    renderGrid(role);
+  }
+
+  document.querySelectorAll('.nav-role, .role-pick').forEach(el=>{
+    el.addEventListener('click', ()=>{ setRole(el.dataset.role); showHome(); });
+  });
+
+  setRole('edit');
+
+  // preload every tile + thumb image so tab switches are instant
+  if(typeof window.requestIdleCallback === 'function') window.requestIdleCallback(preloadAll); else setTimeout(preloadAll, 400);
+  function preloadAll(){
+    const urls = new Set();
+    Object.values(PROJECTS).flat().forEach(p=>{
+      if(p.img) urls.add(p.img);
+      (p.videos||[]).forEach(v=>{ if(v.thumb) urls.add(v.thumb); });
+    });
+    urls.forEach(u=>{ const i = new Image(); i.decoding='async'; i.src = u; });
+  }
+
+  // ── deep-link params from Home page ──
+  const params = new URLSearchParams(location.search);
+  if(params.get('role')==='direct') setRole('direct');
+  if(params.get('index')) document.getElementById('indexOverlay').classList.add('active');
+
+  // ── view switching ──
+  const homeView = document.getElementById('homeView');
+  function showHome(){ homeView.style.display='block'; }
+
+
+  // ── index overlay ──
+  const indexOverlay = document.getElementById('indexOverlay');
+  document.getElementById('indexBtn').addEventListener('click', ()=>indexOverlay.classList.add('active'));
+  document.getElementById('indexClose').addEventListener('click', ()=>indexOverlay.classList.remove('active'));
+  document.querySelectorAll('.index-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      indexOverlay.classList.remove('active');
+      const go = item.dataset.go;
+      if(go==='direct'||go==='edit'){ setRole(go); showHome(); }
+    });
+  });
+
+  // ── contact overlay (unused now that Contact is a direct mailto link) ──
+
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape'){ indexOverlay.classList.remove('active'); }
+  });
+
+  // ── nav idle/reveal (disabled: nav stays visible) ──
+
+  // ── fullscreen video overlay ──
+  const videoOverlay = document.getElementById('videoOverlay');
+  const videoEl = document.getElementById('videoEl');
+  const videoCursor = document.getElementById('videoCursor');
+  const cursorIcon = document.getElementById('cursorIcon');
+  const videoTitleEl = document.getElementById('videoTitle');
+  const SAMPLE_VIDEO = 'https://www.w3schools.com/html/movie.mp4';
+  let isPlaying = false, isMuted = false;
+
+  const videoRail = document.getElementById('videoRail');
+  const vimeoWrap = document.getElementById('vimeoWrap');
+  const videoScrim = document.getElementById('videoScrim');
+  let activePlaylist = null, activeIndex = 0, mediaType = 'native', vimeoPlayer = null, activeProject = null;
+  const creditScreen = document.getElementById('creditScreen');
+  const creditBlock = document.getElementById('creditBlock');
+  function renderCredits(c){
+    creditBlock.innerHTML = c.map(([k,v])=>`<div class="credit-label">${k}</div><div class="credit-value">${v}</div>`).join('');
+  }
+  const creditPanel = document.getElementById('creditPanel');
+  const creditsToggleBtn = document.getElementById('creditsToggleBtn');
+  function getActiveCredits(){
+    const v = activePlaylist && activePlaylist[activeIndex];
+    return (v && v.credits) || (activeProject && activeProject.credits);
+  }
+  function toggleCreditsPanel(){
+    const c = getActiveCredits();
+    if(!c) return;
+    creditPanel.innerHTML = c.map(([k,v])=>`<div class="credit-label">${k}</div><div class="credit-value">${v}</div>`).join('');
+    const showing = creditPanel.classList.toggle('active');
+    creditsToggleBtn.classList.toggle('on', showing);
+  }
+  function onVideoEnded(){
+    const c = getActiveCredits();
+    if(!c || !activeProject || !activeProject.endCredits) return;
+    setTimeout(()=>{
+      videoOverlay.classList.add('ending');
+      videoCursor.classList.remove('visible');
+      setTimeout(()=>{
+        renderCredits(c);
+        videoOverlay.classList.add('showing-credits');
+        creditScreen.classList.add('active');
+      }, 350);
+    }, 300);
+  }
+  function replayFromCredits(){
+    creditScreen.classList.remove('active');
+    videoOverlay.classList.remove('ending','showing-credits');
+    if(mediaType==='vimeo' && vimeoPlayer){
+      vimeoPlayer.setCurrentTime(0).then(()=>vimeoPlayer.play());
+    } else {
+      videoEl.currentTime = 0; videoEl.play();
+    }
+    isPlaying = true; updateCursorIcon();
+  }
+  function showScrim(){ videoScrim.classList.remove('hide'); }
+  function hideScrim(){ videoScrim.classList.add('hide'); }
+
+  function getVimeoPlayer(vimeoId){
+    if(!vimeoPlayer){
+      vimeoPlayer = new Vimeo.Player(vimeoWrap, {id:vimeoId, controls:false, autoplay:true, loop:false, muted:isMuted, dnt:true});
+      vimeoPlayer.on('timeupdate', data=>{
+        if(isScrubbing) return;
+        updateScrubUI(data.percent);
+        scrubCurrent.textContent = formatTime(data.seconds);
+        scrubDuration.textContent = formatTime(data.duration);
+      });
+      vimeoPlayer.on('play', ()=>{ isPlaying=true; updateCursorIcon(); const f=vimeoWrap.querySelector('iframe'); if(f){ f.classList.add('ready'); f.style.opacity='1'; } hideScrim(); });
+      vimeoPlayer.on('pause', ()=>{ isPlaying=false; updateCursorIcon(); });
+      vimeoPlayer.on('ended', ()=>{ isPlaying=false; onVideoEnded(); });
+      vimeoPlayer.on('loaded', ()=>{ fitVimeoFrame(); });
+    }
+    return vimeoPlayer;
+  }
+  function fitVimeoFrame(){
+    if(!vimeoPlayer) return;
+    Promise.all([vimeoPlayer.getVideoWidth(), vimeoPlayer.getVideoHeight()]).then(([vw,vh])=>{
+      if(!vw || !vh) return;
+      const cw = vimeoWrap.clientWidth, ch = vimeoWrap.clientHeight;
+      const scale = Math.min(cw/vw, ch/vh);
+      const w = vw*scale, h = vh*scale;
+      const iframe = vimeoWrap.querySelector('iframe');
+      if(!iframe) return;
+      iframe.style.width = w+'px';
+      iframe.style.height = h+'px';
+      iframe.style.left = ((cw-w)/2)+'px';
+      iframe.style.top = ((ch-h)/2)+'px';
+    });
+  }
+  window.addEventListener('resize', fitVimeoFrame);
+
+  function openVideo(project){
+    activeProject = project;
+    creditsToggleBtn.classList.toggle('show', !!project.credits);
+    creditPanel.classList.remove('active');
+    creditsToggleBtn.classList.remove('on');
+    activePlaylist = project.videos;
+    activeIndex = 0;
+    renderRail();
+    playFromPlaylist();
+  }
+  function renderRail(){
+    if(activePlaylist.length < 2){ videoRail.innerHTML = ''; return; }
+    videoRail.innerHTML = activePlaylist.map((v,i)=>`
+      <div class="video-rail-item" data-i="${i}">
+        <span class="video-rail-num">0${i+1}</span>
+        <div class="video-rail-thumb"><img src="${v.thumb}" alt=""></div>
+      </div>
+    `).join('');
+    videoRail.querySelectorAll('.video-rail-item').forEach(item=>{
+      item.addEventListener('click', e=>{ e.stopPropagation(); activeIndex = +item.dataset.i; playFromPlaylist(); });
+    });
+  }
+  function playFromPlaylist(){
+    creditScreen.classList.remove('active');
+    videoOverlay.classList.remove('ending','showing-credits');
+    creditPanel.classList.remove('active');
+    creditsToggleBtn.classList.remove('on');
+    creditsToggleBtn.classList.toggle('show', !!getActiveCredits());
+    const v = activePlaylist[activeIndex];
+    videoTitleEl.textContent = v.title;
+    videoOverlay.classList.add('active');
+    showScrim();
+    clearTimeout(window.__scrimFallback);
+    window.__scrimFallback = setTimeout(hideScrim, 2500);
+    if(v.vimeoId){
+      mediaType = 'vimeo';
+      videoEl.pause(); videoEl.removeAttribute('src'); videoEl.style.display = 'none'; videoEl.classList.remove('ready');
+      vimeoWrap.style.display = 'block';
+      const isNew = !vimeoPlayer;
+      const vp = getVimeoPlayer(v.vimeoId);
+      const frame0 = vimeoWrap.querySelector('iframe');
+      if(frame0){ frame0.classList.remove('ready'); frame0.style.opacity='0'; }
+      if(isNew){
+        vp.setMuted(isMuted); isPlaying = true; updateCursorIcon();
+        vp.ready().then(()=>vp.play()).catch(()=>{});
+        vp.play().catch(()=>{ vp.setMuted(true); isMuted = true; document.getElementById('muteLabel').textContent = 'Unmute'; document.getElementById('soundWaves').style.display = 'none'; vp.play().catch(()=>{}); });
+      } else {
+        vp.loadVideo(v.vimeoId).then(()=>{ vp.setMuted(isMuted); vp.play(); isPlaying = true; updateCursorIcon(); fitVimeoFrame(); });
+      }
+    } else {
+      mediaType = 'native';
+      vimeoWrap.style.display = 'none';
+      videoEl.style.display = 'block';
+      videoEl.classList.remove('ready');
+      videoEl.src = v.src;
+      videoEl.muted = isMuted;
+      videoEl.play();
+      isPlaying = true;
+      updateCursorIcon();
+    }
+    videoRail.querySelectorAll('.video-rail-item').forEach((item,i)=>item.classList.toggle('active', i===activeIndex));
+  }
+  function closeVideo(){
+    creditPanel.classList.remove('active');
+    creditsToggleBtn.classList.remove('on');
+    creditScreen.classList.remove('active');
+    videoOverlay.classList.remove('ending','showing-credits');
+    videoOverlay.classList.remove('active');
+    videoEl.pause();
+    videoEl.removeAttribute('src');
+    videoEl.classList.remove('ready');
+    const f = vimeoWrap.querySelector('iframe');
+    if(f){ f.classList.remove('ready'); f.style.opacity='0'; }
+    showScrim();
+    if(vimeoPlayer) vimeoPlayer.pause().catch(()=>{});
+    isPlaying = false;
+    activePlaylist = null;
+    videoCursor.classList.remove('visible');
+  }
+  videoOverlay.addEventListener('click', e=>{
+    if(creditScreen.classList.contains('active')) return;
+    if(e.target.closest('.video-btn') || e.target.closest('.scrub-wrap') || e.target.closest('.video-rail')) return;
+    if(mediaType==='vimeo' && vimeoPlayer){
+      if(isPlaying){ vimeoPlayer.pause(); } else { vimeoPlayer.play(); }
+    } else {
+      if(isPlaying){ videoEl.pause(); isPlaying=false; } else { videoEl.play(); isPlaying=true; }
+      updateCursorIcon();
+    }
+  });
+  function updateCursorIcon(){
+    cursorIcon.innerHTML = isPlaying
+      ? '<rect x="6" y="4" width="4" height="16" fill="#fff"/><rect x="14" y="4" width="4" height="16" fill="#fff"/>'
+      : '<polygon points="5 3 19 12 5 21 5 3" fill="#fff"/>';
+  }
+  function toggleMute(){
+    isMuted = !isMuted;
+    if(mediaType==='vimeo' && vimeoPlayer){ vimeoPlayer.setMuted(isMuted); } else { videoEl.muted = isMuted; }
+    document.getElementById('muteLabel').textContent = isMuted ? 'Unmute' : 'Mute';
+    document.getElementById('soundWaves').style.display = isMuted ? 'none' : '';
+  }
+
+  const scrubTrack = document.getElementById('scrubTrack');
+  const scrubFill = document.getElementById('scrubFill');
+  const scrubHandle = document.getElementById('scrubHandle');
+  const scrubCurrent = document.getElementById('scrubCurrent');
+  const scrubDuration = document.getElementById('scrubDuration');
+  let isScrubbing = false;
+  function formatTime(s){
+    if(!isFinite(s)) return '0:00';
+    const m = Math.floor(s/60), sec = Math.floor(s%60).toString().padStart(2,'0');
+    return `${m}:${sec}`;
+  }
+  function setScrubFromEvent(e){
+    const rect = scrubTrack.getBoundingClientRect();
+    const pct = Math.min(1, Math.max(0, (e.clientX-rect.left)/rect.width));
+    if(mediaType==='vimeo' && vimeoPlayer){
+      vimeoPlayer.getDuration().then(d=>vimeoPlayer.setCurrentTime(pct*d));
+    } else if(videoEl.duration){
+      videoEl.currentTime = pct*videoEl.duration;
+    }
+    updateScrubUI(pct);
+  }
+  function updateScrubUI(pct){
+    scrubFill.style.width = (pct*100)+'%';
+    scrubHandle.style.left = (pct*100)+'%';
+  }
+  scrubTrack.addEventListener('mousedown', e=>{ isScrubbing=true; setScrubFromEvent(e); });
+  window.addEventListener('mousemove', e=>{ if(isScrubbing) setScrubFromEvent(e); });
+  window.addEventListener('mouseup', ()=>{ isScrubbing=false; });
+  videoEl.addEventListener('timeupdate', ()=>{
+    if(isScrubbing || !videoEl.duration) return;
+    updateScrubUI(videoEl.currentTime/videoEl.duration);
+    scrubCurrent.textContent = formatTime(videoEl.currentTime);
+  });
+  videoEl.addEventListener('playing', ()=>{ videoEl.classList.add('ready'); hideScrim(); });
+  videoEl.addEventListener('loadedmetadata', ()=>{ scrubDuration.textContent = formatTime(videoEl.duration); });
+
+  let overScrub = false;
+  videoOverlay.addEventListener('mousemove', e=>{
+    videoCursor.style.left = e.clientX+'px';
+    videoCursor.style.top = e.clientY+'px';
+    if(!overScrub) videoCursor.classList.add('visible');
+  });
+  videoOverlay.addEventListener('mouseleave', ()=>videoCursor.classList.remove('visible'));
+  document.getElementById('scrubWrap').addEventListener('mouseenter', ()=>{ overScrub=true; videoCursor.classList.remove('visible'); });
+  document.getElementById('scrubWrap').addEventListener('mouseleave', ()=>{ overScrub=false; });
+  document.querySelector('.video-controls').addEventListener('mouseenter', ()=>{ overScrub=true; videoCursor.classList.remove('visible'); });
+  document.querySelector('.video-controls').addEventListener('mouseleave', ()=>{ overScrub=false; });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeVideo(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giancarlo Bauzulli</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#0a0a0a;color:#f2f2ee;font-family:'IBM Plex Mono',monospace;width:100%;height:100%;overflow:hidden}
+  a{color:inherit;text-decoration:none}
+
+  .screen{height:100vh;display:flex;flex-direction:column;justify-content:space-between}
+
+  /* ── NAV ── */
+  nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:36px 48px}
+  .logo{font-size:15.1px;letter-spacing:0.02em;font-weight:400;text-transform:uppercase;color:rgba(242,242,238,0.7)}
+  .logo:hover{color:transparent;-webkit-text-fill-color:transparent;background:linear-gradient(90deg,#1e1b8f,#8b1fd6,#ff2d55,#ff6a1a,#ffd23f,#ff6a1a,#ff2d55,#8b1fd6,#1e1b8f);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;animation:thermal-sweep 3s linear infinite}
+  .nav-links{display:flex;gap:36px;align-items:center}
+  .nav-links a{font-size:15.1px;letter-spacing:0.02em;text-transform:uppercase;color:rgba(242,242,238,0.7);padding-bottom:3px}
+  .nav-links a:hover{color:transparent;-webkit-text-fill-color:transparent;background:linear-gradient(90deg,#1e1b8f,#8b1fd6,#ff2d55,#ff6a1a,#ffd23f,#ff6a1a,#ff2d55,#8b1fd6,#1e1b8f);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;animation:thermal-sweep 3s linear infinite}
+  .nav-links a.active{color:rgba(242,242,238,0.7)}
+  .nav-links a.active:hover{color:transparent;-webkit-text-fill-color:transparent;background:linear-gradient(90deg,#1e1b8f,#8b1fd6,#ff2d55,#ff6a1a,#ffd23f,#ff6a1a,#ff2d55,#8b1fd6,#1e1b8f);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;animation:thermal-sweep 3s linear infinite}
+  .index-link{font-size:13.75px;letter-spacing:0.02em;text-transform:uppercase;color:rgba(242,242,238,0.7)}
+  .index-link:hover{color:transparent;-webkit-text-fill-color:transparent;background:linear-gradient(90deg,#1e1b8f,#8b1fd6,#ff2d55,#ff6a1a,#ffd23f,#ff6a1a,#ff2d55,#8b1fd6,#1e1b8f);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;animation:thermal-sweep 3s linear infinite}
+
+  /* ── CENTER TAGLINE ── */
+  .center{flex:1;display:flex;align-items:center;justify-content:center;padding:0 24px;position:relative}
+  .tagline{font-size:16.9px;letter-spacing:0.02em;text-transform:uppercase;color:rgba(242,242,238,0.85);text-align:center;cursor:default}
+  .tagline:hover{color:transparent;-webkit-text-fill-color:transparent;background:linear-gradient(90deg,#1e1b8f,#8b1fd6,#ff2d55,#ff6a1a,#ffd23f,#ff6a1a,#ff2d55,#8b1fd6,#1e1b8f);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;animation:thermal-sweep 3s linear infinite}
+  @keyframes thermal-sweep{0%{background-position:0% 0}100%{background-position:300% 0}}
+
+  .cursor-preview{position:fixed;top:0;left:0;width:220px;height:150px;pointer-events:none;z-index:50;opacity:0;transition:opacity 0.25s ease;transform:translate(-50%,-50%);overflow:hidden}
+  .cursor-preview img{width:100%;height:100%;object-fit:cover;display:block}
+
+  /* ── FOOTER ── */
+  footer{display:flex;justify-content:space-between;align-items:flex-end;padding:16px 48px}
+  .insta{font-size:13.75px;letter-spacing:0.02em;text-transform:uppercase;color:rgba(242,242,238,0.7);transition:color 0.2s}
+  .insta:hover{color:#f2f2ee}
+  .clients{text-align:right}
+  .clients-label{font-size:12.4px;letter-spacing:0.02em;text-transform:uppercase;color:rgba(242,242,238,0.5);margin-bottom:6px}
+  .clients-list{font-size:13.75px;letter-spacing:0.02em;text-transform:uppercase;color:rgba(242,242,238,0.55);max-width:460px}
+
+  @media (max-width:720px){
+    nav{grid-template-columns:1fr auto;padding:18px 20px}
+    .nav-links{grid-column:1/-1;grid-row:2;justify-content:flex-start;gap:18px;margin-top:14px}
+    .nav-links a,.index-link{font-size:11px}
+    .logo{font-size:11px}
+    .tagline{font-size:11px}
+    footer{flex-direction:column;align-items:flex-start;gap:16px;padding:16px 20px}
+    .clients{text-align:left}
+    .clients-list{max-width:100%}
+  }
+</style>
+</head>
+<body>
+
+<div class="screen">
+  <nav>
+    <span class="logo">Giancarlo Bauzulli</span>
+    <div class="nav-links">
+      <a href="index.html?role=edit" class="active">Editor</a>
+      <a href="index.html?role=direct">Director</a>
+    </div>
+    <a class="index-link" href="mailto:bauzullig@gmail.com" style="justify-self:end">Contact</a>
+  </nav>
+
+  <div class="center">
+    <div class="tagline">Director. Editor. Working globally. From New York.</div>
+  </div>
+
+  <div class="cursor-preview" id="cursorPreview"><img id="cursorPreviewImg" src="" alt=""></div>
+
+  <footer>
+    <a class="insta" href="https://instagram.com/gianaldinho" target="_blank" rel="noopener">Instagram ↗</a>
+    <div class="clients">
+      <div class="clients-label">[ Clients ]</div>
+      <div class="clients-list">Apple · A24 · Beats by Dre · Adidas Originals · Amazon · Polymarket · WhatsApp · YSL · Peloton · UPS · Burberry · Vogue · Moncler · Louis Vuitton · Kith · Patrón · 3.1 Phillip Lim · ClassPass · HUF Worldwide · The Berrics · DYNE · Daily Harvest · Mercedes-Benz</div>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

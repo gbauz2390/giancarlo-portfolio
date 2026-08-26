@@ -1,0 +1,52 @@
+# OS / editor cruft
+.DS_Store
+.claude/
+
+# Design-tool metadata (not part of the deployed site)
+.thumbnail
+
+# Unused upload files — old edit-history versions, test images, and
+# screenshots not referenced by index.html or Main Homepage.html.
+# Kept on disk, excluded from the repo to keep it lean.
+uploads/55.jpg
+uploads/92905ceb-4ec0-4e0f-bd93-7d0ac6916a0d.png
+uploads/Bw-rev-2.jpg
+uploads/ChatGPT Image Aug 18, 2026 at 01_55_19 AM.png
+uploads/ChatGPT Image Aug 18, 2026 at 01_59_54 AM.png
+uploads/ChatGPT Image Aug 18, 2026 at 02_05_52 AM.png
+uploads/ChatGPT Image Aug 18, 2026 at 02_07_05 AM.png
+uploads/ChatGPT Image Aug 18, 2026 at 02_53_24 AM.png
+uploads/ChatGPT Image Aug 18, 2026 at 10_31_13 PM.png
+uploads/Firefly-2-b53ab451.jpg
+uploads/Firefly-2.jpg
+uploads/Firefly.jpg
+uploads/Firefly_PELO.jpg
+uploads/Fireflypoly.jpg
+uploads/Kia.jpg
+uploads/Leroy.png
+uploads/Screenshot 2026-04-20 at 10.34.11 PM.png
+uploads/Screenshot 2026-07-10 at 5.01.44 PM.png
+uploads/Screenshot 2026-08-14 at 4.14.49 PM-c60e4e6e.png
+uploads/Screenshot 2026-08-14 at 4.14.49 PM.png
+uploads/Screenshot 2026-08-14 at 6.00.55 PM.png
+uploads/Screenshot 2026-08-14 at 7.42.15 PM-3da140fa.png
+uploads/Screenshot 2026-08-14 at 7.42.15 PM.png
+uploads/Screenshot 2026-08-18 at 11.03.42 PM.png
+uploads/Screenshot 2026-08-19 at 11.00.44 PM.png
+uploads/Screenshot 2026-08-20 at 1.20.10 AM.png
+uploads/Screenshot 2026-08-20 at 12.29.04 AM.png
+uploads/Screenshot 2026-08-20 at 12.30.13 AM.png
+uploads/a24-3ab4899c.jpeg
+uploads/a24.jpeg
+uploads/c3d865ab-4610-4908-8c90-e4a530c46721.png
+uploads/flo 2-30ed2008.jpg
+uploads/flo 2.jpg
+uploads/jaxon-54-copy-26d4aae2.jpg
+uploads/jaxon-54-copy.jpg
+uploads/pasted-1787108233952-0.jpeg
+uploads/roots-left.jpg
+uploads/shame ff-bfd77c76.jpg
+uploads/shame ff.jpg
+uploads/shame-gang-cropped.png
+uploads/ysl-blue2-.jpg
+uploads/yslx2.jpg
